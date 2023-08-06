@@ -1,7 +1,12 @@
 plugins {
     kotlin("jvm") version "1.9.0"
+
+    id("maven-publish")
     `java-library`
 }
+
+group = "de.scui1"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -14,5 +19,28 @@ dependencies {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+publishing {
+
+    repositories {
+        maven {
+            group
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Scui1/KotlinPEFile")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+
+    publications {
+        register<MavenPublication>("gpr") {
+            artifactId = "kotlin-pefile"
+
+            from(components["java"])
+        }
     }
 }

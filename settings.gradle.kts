@@ -1,2 +1,2 @@
-rootProject.name = "PEFile"
+rootProject.name = "KotlinPEFile"
 include("lib")

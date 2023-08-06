@@ -5,7 +5,7 @@ plugins {
     `java-library`
 }
 
-group = "de.scui1"
+group = "de.scui"
 version = "1.0"
 
 repositories {

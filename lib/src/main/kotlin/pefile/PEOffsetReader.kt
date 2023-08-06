@@ -1,6 +1,6 @@
 package pefile
 
-class OffsetReader(private val bytes: ByteArray) {
+class PEOffsetReader(private val bytes: ByteArray) {
 
     fun readInt(base: Int): Int {
         return readIntWithSize(base, 4)

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 private val logger = LoggerFactory.getLogger("PEFile")
 
 class PEFile(val bytes: ByteArray, val name: String) {
-    private val reader = OffsetReader(bytes)
+    private val reader = PEOffsetReader(bytes)
     init {
         if (!hasValidDosHeader())
             throw InvalidPEFileException("DOS Header is invalid")

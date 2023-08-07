@@ -16,7 +16,7 @@ class PEOffsetReader(private val bytes: ByteArray) {
         return String(read(base, size)).trim { it <= ' ' } // remove null characters
     }
 
-    private fun read(base: Int, size: Int): ByteArray {
+    fun read(base: Int, size: Int): ByteArray {
         return bytes.copyOfRange(base, base + size)
     }
 

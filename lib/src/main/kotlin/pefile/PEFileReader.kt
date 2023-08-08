@@ -6,7 +6,7 @@ import java.io.IOException
 
 private val logger = LoggerFactory.getLogger("PEFileReader")
 
-fun readPEFromFile(fileName: String): PEFile? {
+fun PEFile.Companion.fromFile(fileName: String): PEFile? {
     val fileBytes = try {
         File(fileName).readBytes()
     } catch (e: IOException) {

@@ -41,6 +41,10 @@ class PEFile(val bytes: ByteArray, val name: String) {
         return offset + rawVirtualDifference
     }
 
+    fun write(base: Int, bytes: ByteArray) {
+        bytes.copyInto(this.bytes, base)
+    }
+
     fun read(base: Int, size: Int): ByteArray {
         return reader.read(base, size)
     }
@@ -112,5 +116,9 @@ class PEFile(val bytes: ByteArray, val name: String) {
         }
 
         return sections
+    }
+
+    companion object {
+
     }
 }

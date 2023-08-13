@@ -19,14 +19,14 @@ class PEFile(val bytes: ByteArray, val name: String) {
     }
 
     fun convertRawOffsetToVirtualOffset(offset: Int, sectionName: String): Int {
-        // fix difference between virtual and raw address, as we need the offset to the pattern in memory
-        val textSection = getSectionByName(sectionName)
-        if (textSection == null) {
-            logger.warn("Failed to find .text section, this shouldn't happen")
+        // fix difference between virtual and raw address
+        val section = getSectionByName(sectionName)
+        if (section == null) {
+            logger.warn("Failed to find section called '$sectionName', this shouldn't happen")
             return 0
         }
 
-        val virtualRawDifference = textSection.virtualBase - textSection.rawBase
+        val virtualRawDifference = section.virtualBase - section.rawBase
         return offset + virtualRawDifference
     }
 
@@ -43,6 +43,33 @@ class PEFile(val bytes: ByteArray, val name: String) {
 
     fun write(base: Int, bytes: ByteArray) {
         bytes.copyInto(this.bytes, base)
+    }
+
+    fun readIntVirtualWithBase(base: Int): Int {
+        return readIntVirtual(base - getImageBase())
+    }
+
+    fun readIntVirtual(base: Int): Int {
+        val toRead = convertVirtualOffsetToRawOffset(base)
+        if (toRead == 0)
+            return 0
+
+        return reader.readInt(toRead)
+    }
+
+    /**
+     * read a virtual address that also has the imagebase in it
+     */
+    fun readVirtualWithBase(base: Int, size: Int): ByteArray {
+        return readVirtual(base - getImageBase(), size)
+    }
+
+    fun readVirtual(base: Int, size: Int): ByteArray {
+        val toRead = convertVirtualOffsetToRawOffset(base)
+        if (toRead == 0)
+            return byteArrayOf()
+
+        return reader.read(toRead, size)
     }
 
     fun read(base: Int, size: Int): ByteArray {

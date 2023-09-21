@@ -135,7 +135,7 @@ class PEFile(val bytes: ByteArray) {
             val sectionEntry = sectionHeaders + 40 * i
             val name = reader.readString(sectionEntry, 8)
             val virtualSize = readInt(sectionEntry + 8)
-            val rawSize = readInt(sectionEntry + 20)
+            val rawSize = readInt(sectionEntry + 16)
             val virtualBase = readInt(sectionEntry + 12)
             val rawBase = readInt(sectionEntry + 20)
 

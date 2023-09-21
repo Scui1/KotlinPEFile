@@ -20,7 +20,7 @@ fun PEFile.Companion.fromFile(fileName: String): PEFile? {
     }
 
     val peFile = try {
-        PEFile(fileBytes, fileName)
+        PEFile(fileBytes)
     } catch (exception: InvalidPEFileException) {
         logger.error("PEFile $fileName is not a valid pe file: ${exception.message}")
         return null

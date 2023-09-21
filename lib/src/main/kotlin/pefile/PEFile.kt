@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("PEFile")
 
-class PEFile(val bytes: ByteArray, val name: String) {
+class PEFile(val bytes: ByteArray) {
     private val reader = PEOffsetReader(bytes)
     init {
         if (!hasValidDosHeader())
@@ -123,7 +123,7 @@ class PEFile(val bytes: ByteArray, val name: String) {
     }
 
     private fun getSectionByVirtualAddress(address: Int): Section? {
-        return sections.find { address >= it.virtualBase && address <= it.virtualBase + it.size }
+        return sections.find { address >= it.virtualBase && address <= it.virtualBase + it.virtualSize }
     }
 
     private fun getModuleSections(): List<Section> {
@@ -134,11 +134,12 @@ class PEFile(val bytes: ByteArray, val name: String) {
         for (i in 0 until getNumberOfSections()) {
             val sectionEntry = sectionHeaders + 40 * i
             val name = reader.readString(sectionEntry, 8)
-            val size = readInt(sectionEntry + 8)
+            val virtualSize = readInt(sectionEntry + 8)
+            val rawSize = readInt(sectionEntry + 20)
             val virtualBase = readInt(sectionEntry + 12)
             val rawBase = readInt(sectionEntry + 20)
 
-            val section = Section(name, rawBase, virtualBase, size)
+            val section = Section(name, rawBase, virtualBase, virtualSize, rawSize)
             sections.add(section)
         }
 

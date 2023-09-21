@@ -5,7 +5,7 @@ import pefile.Section
 
 fun searchPattern(
     peFile: PEFile, section: Section, patternArg: List<PatternByte>, wantedOccurrences: Int,
-    start: Int = section.rawBase, maxBytesToSearch: Int = section.size, backwards: Boolean = false
+    start: Int = section.rawBase, maxBytesToSearch: Int = section.rawSize, backwards: Boolean = false
 ): Int {
     val bytePattern = if (backwards) patternArg.reversed() else patternArg
     val endAddress = if (backwards) start - maxBytesToSearch else start + maxBytesToSearch
@@ -17,7 +17,7 @@ fun searchPattern(
         if (currentByteMatchesPatternByte(peFile, i, bytePattern[bytesMatched]))
             ++bytesMatched
         else {
-            // if the current byte does not match and we had already more than 1 bytes matched, we need to recheck if the current byte is the start of the pattern
+            // if the current byte does not match, and we had already more than 1 byte matched, we need to recheck if the current byte is the start of the pattern
             bytesMatched = if (bytesMatched > 0)
                 if (currentByteMatchesPatternByte(peFile, i, bytePattern[0])) 1 else 0
             else

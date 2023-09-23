@@ -3,6 +3,7 @@ package pefile.datadirectory.directories
 import pefile.datadirectory.DataDirectoryType.DEBUG_DIRECTORY
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.*
 
 data class DebugDirectory(val timeDateStamp: Int, val signature: ByteArray) : DataDirectory(DEBUG_DIRECTORY) {
     fun formattedSignature(): String {
@@ -19,6 +20,6 @@ data class DebugDirectory(val timeDateStamp: Int, val signature: ByteArray) : Da
         parts.add(last.substring(0, 4))
         parts.add(last.substring(4))
 
-        return parts.joinToString("-")
+        return parts.joinToString("-").uppercase(Locale.getDefault())
     }
 }

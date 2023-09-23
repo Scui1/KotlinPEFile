@@ -28,6 +28,6 @@ class PEFileTest {
         assertIs<DebugDirectory>(debugDirectory)
 
         assertEquals(0x649217F0, debugDirectory.timeDateStamp)
-        assertEquals("4d49776c-cebf-4958-9337-f050763ba123", debugDirectory.formattedSignature())
+        assertEquals("4D49776C-CEBF-4958-9337-F050763BA123", debugDirectory.formattedSignature())
     }
 }

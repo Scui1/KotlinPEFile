@@ -1,21 +1,40 @@
 package pefile
 
 import org.slf4j.LoggerFactory
+import pefile.datadirectory.DataDirectoryType
+import pefile.datadirectory.DataDirectoryDescription
+import pefile.datadirectory.directories.DataDirectory
+import pefile.datadirectory.directories.DebugDirectory
 
 private val logger = LoggerFactory.getLogger("PEFile")
 
 class PEFile(val bytes: ByteArray) {
     private val reader = PEOffsetReader(bytes)
+
     init {
         if (!hasValidDosHeader())
             throw InvalidPEFileException("DOS Header is invalid")
     }
+
     private val machineType = constructMachineType()
     val architecture = constructArchitecture()
     private val sections = getModuleSections()
 
+
     fun getSectionByName(name: String): Section? {
         return sections.find { it.name == name }
+    }
+
+    fun getDataDirectoryByType(type: DataDirectoryType): DataDirectory? {
+        val description = getDataDirectoryDescriptions().find { it.type == type } ?: return null
+        if (type == DataDirectoryType.DEBUG_DIRECTORY) {
+            val timeDateStamp = readInt(description.rawAddress + 4)
+            val codeViewInfoAddress = readInt(description.rawAddress + 24)
+            val signature = reader.read(codeViewInfoAddress + 4, 16)
+            return DebugDirectory(timeDateStamp, signature)
+        }
+
+        return null
     }
 
     fun convertRawOffsetToVirtualOffset(offset: Int, sectionName: String): Int {
@@ -30,7 +49,7 @@ class PEFile(val bytes: ByteArray) {
         return offset + virtualRawDifference
     }
 
-    fun convertVirtualOffsetToRawOffset(offset: Int): Int  {
+    fun convertVirtualOffsetToRawOffset(offset: Int): Int {
         val section = getSectionByVirtualAddress(offset)
         if (section == null) {
             logger.warn("Couldn't find section for address 0x${offset.toString(16)}")
@@ -88,10 +107,14 @@ class PEFile(val bytes: ByteArray) {
         return readInt(getPeHeader() + architecture.getImageBaseOffset())
     }
 
+    fun getSizeOfCode(): Int {
+        return readInt(getPeHeader() + 0x1C);
+    }
+
     private fun constructArchitecture(): IPEFileArchitecture {
-        return when(machineType) {
-             MachineType.INTEL386 -> PEFile32Architecture()
-             MachineType.AMD64 -> PEFile64Architecture()
+        return when (machineType) {
+            MachineType.INTEL386 -> PEFile32Architecture()
+            MachineType.AMD64 -> PEFile64Architecture()
         }
     }
 
@@ -109,7 +132,7 @@ class PEFile(val bytes: ByteArray) {
         return reader.readShort(getPeHeader() + 6)
     }
 
-    private fun getDataDirectories(): Int {
+    private fun getDataDirectoriesOffset(): Int {
         return getPeHeader() + architecture.getDataDirectoriesOffset()
     }
 
@@ -126,10 +149,22 @@ class PEFile(val bytes: ByteArray) {
         return sections.find { address >= it.virtualBase && address <= it.virtualBase + it.virtualSize }
     }
 
+    private fun getDataDirectoryDescriptions(): List<DataDirectoryDescription> {
+        val dataDirectoriesOffset = getDataDirectoriesOffset()
+
+        return DataDirectoryType.entries.mapIndexed { index, type ->
+            val descriptionOffset = dataDirectoriesOffset + index * 8
+            val virtualAddress = readInt(descriptionOffset)
+            val size = readInt(descriptionOffset + 4)
+            val rawAddress = if (virtualAddress != 0) convertVirtualOffsetToRawOffset(virtualAddress) else 0
+            DataDirectoryDescription(type, virtualAddress, rawAddress, size)
+        }
+    }
+
     private fun getModuleSections(): List<Section> {
         val sections = mutableListOf<Section>()
 
-        val sectionHeaders = getDataDirectories() + 8 * getNumberOfRvaAndSizes()
+        val sectionHeaders = getDataDirectoriesOffset() + 8 * getNumberOfRvaAndSizes()
 
         for (i in 0 until getNumberOfSections()) {
             val sectionEntry = sectionHeaders + 40 * i

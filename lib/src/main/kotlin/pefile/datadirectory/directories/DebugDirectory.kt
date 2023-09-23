@@ -1,25 +1,22 @@
 package pefile.datadirectory.directories
 
 import pefile.datadirectory.DataDirectoryType.DEBUG_DIRECTORY
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.*
+import kotlin.text.HexFormat
 
 data class DebugDirectory(val timeDateStamp: Int, val signature: ByteArray) : DataDirectory(DEBUG_DIRECTORY) {
+    @OptIn(ExperimentalStdlibApi::class)
     fun formattedSignature(): String {
-        val buffer = ByteBuffer.wrap(signature)
-            .order(ByteOrder.LITTLE_ENDIAN)
+        val hexBytes = signature.map { it.toUByte().toHexString(HexFormat.UpperCase) }
 
-        val parts = mutableListOf<String>()
-        parts.add(buffer.getInt().toUInt().toString(16))
-        parts.add(buffer.getShort().toUShort().toString(16))
-        parts.add(buffer.getShort().toUShort().toString(16))
-
-        buffer.order(ByteOrder.BIG_ENDIAN)
-        val last = buffer.getLong().toULong().toString(16)
-        parts.add(last.substring(0, 4))
-        parts.add(last.substring(4))
-
-        return parts.joinToString("-").uppercase(Locale.getDefault())
+        return listOf(
+            hexBytes.subList(0, 4).reversed().joinToString(""),
+            hexBytes.subList(4, 6).reversed().joinToString(""),
+            hexBytes.subList(6, 8).reversed().joinToString(""),
+            hexBytes.subList(8, 10).joinToString(""),
+            hexBytes.subList(10, 16).joinToString("")
+        )
+            .joinToString("-")
+            .uppercase(Locale.getDefault())
     }
 }

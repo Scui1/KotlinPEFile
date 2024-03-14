@@ -49,6 +49,17 @@ class PEFile(val bytes: ByteArray) {
         return offset + virtualRawDifference
     }
 
+    fun convertRawOffsetToVirtualOffset(offset: Int): Int {
+        val section = getSectionByRawAddress(offset)
+        if (section == null) {
+            logger.warn("Failed to find section for address '$offset', this shouldn't happen")
+            return 0
+        }
+
+        val virtualRawDifference = section.virtualBase - section.rawBase
+        return offset + virtualRawDifference
+    }
+
     fun convertVirtualOffsetToRawOffset(offset: Int): Int {
         val section = getSectionByVirtualAddress(offset)
         if (section == null) {
@@ -147,6 +158,10 @@ class PEFile(val bytes: ByteArray) {
 
     private fun getSectionByVirtualAddress(address: Int): Section? {
         return sections.find { address >= it.virtualBase && address <= it.virtualBase + it.virtualSize }
+    }
+
+    private fun getSectionByRawAddress(address: Int): Section? {
+        return sections.find { address >= it.rawBase && address <= it.rawBase + it.rawSize }
     }
 
     private fun getDataDirectoryDescriptions(): List<DataDirectoryDescription> {

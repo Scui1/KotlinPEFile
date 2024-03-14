@@ -106,6 +106,10 @@ class PEFile(val bytes: ByteArray) {
         return reader.read(base, size)
     }
 
+    fun readLong(base: Int): Long {
+        return reader.readLong(base)
+    }
+
     fun readInt(base: Int): Int {
         return reader.readInt(base)
     }
@@ -116,6 +120,10 @@ class PEFile(val bytes: ByteArray) {
 
     fun getImageBase(): Int {
         return readInt(getPeHeader() + architecture.getImageBaseOffset())
+    }
+
+    fun getImageBase64(): Long {
+        return readLong(getPeHeader() + architecture.getImageBaseOffset())
     }
 
     fun getSizeOfCode(): Int {

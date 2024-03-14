@@ -10,10 +10,17 @@ import kotlin.test.assertNotNull
 class PEFileTest {
 
     lateinit var peFile: PEFile;
+    lateinit var x64PeFile: PEFile
 
     @BeforeEach
     fun loadPEFile() {
         peFile = PEFileTest::class.java.getResource("SomePEFile")?.let { PEFile(it.readBytes()) }!!
+        x64PeFile = PEFileTest::class.java.getResource("Somex64PEFile")?.let { PEFile(it.readBytes()) }!!
+    }
+
+    @Test
+    fun imageBaseWorks() {
+        assertEquals(0x180000000, x64PeFile.getImageBase64())
     }
 
     @Test

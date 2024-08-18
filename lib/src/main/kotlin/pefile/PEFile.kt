@@ -205,6 +205,9 @@ class PEFile(val bytes: ByteArray) {
     }
 
     companion object {
-
+        fun copyOf(peFile: PEFile): PEFile {
+            val newBytes = peFile.bytes.copyOf()
+            return PEFile(newBytes)
+        }
     }
 }

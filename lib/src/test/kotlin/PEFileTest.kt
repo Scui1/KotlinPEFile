@@ -34,7 +34,7 @@ class PEFileTest {
         val debugDirectory = peFile.getDataDirectoryByType(DEBUG_DIRECTORY)
         assertIs<DebugDirectory>(debugDirectory)
 
-        assertEquals(0x633BA1F0, debugDirectory.timeDateStamp)
-        assertEquals("07B71E6D-4D55-4DB6-B3EC-4D05512F710A", debugDirectory.formattedSignature())
+        assertEquals(0x633BA1F0, debugDirectory.getCodeViewDateTimestamp())
+        assertEquals("07B71E6D-4D55-4DB6-B3EC-4D05512F710A", debugDirectory.getCodeViewSignature())
     }
 }

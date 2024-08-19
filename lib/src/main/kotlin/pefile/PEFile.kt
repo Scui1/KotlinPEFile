@@ -5,6 +5,8 @@ import pefile.datadirectory.DataDirectoryType
 import pefile.datadirectory.DataDirectoryDescription
 import pefile.datadirectory.directories.DataDirectory
 import pefile.datadirectory.directories.DebugDirectory
+import pefile.datadirectory.directories.DebugDirectoryEntry
+import pefile.datadirectory.directories.DebugDirectoryType
 
 private val logger = LoggerFactory.getLogger("PEFile")
 
@@ -28,10 +30,18 @@ class PEFile(val bytes: ByteArray) {
     fun getDataDirectoryByType(type: DataDirectoryType): DataDirectory? {
         val description = getDataDirectoryDescriptions().find { it.type == type } ?: return null
         if (type == DataDirectoryType.DEBUG_DIRECTORY) {
-            val timeDateStamp = readInt(description.rawAddress + 4)
-            val codeViewInfoAddress = readInt(description.rawAddress + 24)
-            val signature = reader.read(codeViewInfoAddress + 4, 16)
-            return DebugDirectory(timeDateStamp, signature)
+
+            val sizeOfDebugDirectoryEntry = 0x1C
+            val numDebugDirectoryEntries = description.size / sizeOfDebugDirectoryEntry
+            val debugDirectoryEntries =  (0 until numDebugDirectoryEntries).map { i ->
+                val debugEntry = description.rawAddress + i * sizeOfDebugDirectoryEntry
+                val timeDateStamp = readInt(debugEntry + 4)
+                val entryType = DebugDirectoryType.fromValue(readInt(debugEntry + 0xC))
+                val entrySize = readInt(debugEntry + 0x10)
+                val pointerToRawData = readInt(debugEntry + 0x18)
+                DebugDirectoryEntry(timeDateStamp, entryType!!, entrySize, pointerToRawData)
+            }
+            return DebugDirectory(this, debugDirectoryEntries)
         }
 
         return null
@@ -172,7 +182,7 @@ class PEFile(val bytes: ByteArray) {
         return sections.find { address >= it.rawBase && address <= it.rawBase + it.rawSize }
     }
 
-    private fun getDataDirectoryDescriptions(): List<DataDirectoryDescription> {
+    fun getDataDirectoryDescriptions(): List<DataDirectoryDescription> {
         val dataDirectoriesOffset = getDataDirectoriesOffset()
 
         return DataDirectoryType.entries.mapIndexed { index, type ->

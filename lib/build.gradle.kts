@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "de.scui"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -25,6 +25,7 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
+    withSourcesJar()
 }
 
 publishing {

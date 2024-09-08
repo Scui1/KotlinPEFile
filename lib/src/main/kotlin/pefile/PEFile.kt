@@ -83,7 +83,7 @@ class PEFile(val bytes: ByteArray) {
 
     fun virtualAddressHasRawAddress(virtualAddress: Int): Boolean {
         val convertedRawAddress = convertVirtualOffsetToRawOffset(virtualAddress)
-        return getSectionByRawAddress(convertedRawAddress) != null
+        return getSectionByRawAddress(convertedRawAddress) == getSectionByVirtualAddress(virtualAddress)
     }
 
     fun write(base: Int, bytes: ByteArray) {

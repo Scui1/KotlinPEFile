@@ -1,12 +1,9 @@
 package pefile
 
 import org.slf4j.LoggerFactory
-import pefile.datadirectory.DataDirectoryType
 import pefile.datadirectory.DataDirectoryDescription
-import pefile.datadirectory.directories.DataDirectory
-import pefile.datadirectory.directories.DebugDirectory
-import pefile.datadirectory.directories.DebugDirectoryEntry
-import pefile.datadirectory.directories.DebugDirectoryType
+import pefile.datadirectory.DataDirectoryType
+import pefile.datadirectory.directories.*
 
 private val logger = LoggerFactory.getLogger("PEFile")
 
@@ -42,6 +39,9 @@ class PEFile(val bytes: ByteArray) {
                 DebugDirectoryEntry(timeDateStamp, entryType!!, entrySize, pointerToRawData)
             }
             return DebugDirectory(this, debugDirectoryEntries)
+        } else if (type == DataDirectoryType.EXPORT_DIRECTORY) {
+
+            return ExportDirectory(this, description.rawAddress)
         }
 
         return null
@@ -131,6 +131,14 @@ class PEFile(val bytes: ByteArray) {
 
     fun readIntWithSize(base: Int, size: Int): Int {
         return reader.readIntWithSize(base, size)
+    }
+
+
+    /**
+     * Reads a string without size, but reading until reaching \0 character
+     */
+    fun readString(base: Int): String {
+        return reader.readString(base)
     }
 
     fun getImageBase(): Int {

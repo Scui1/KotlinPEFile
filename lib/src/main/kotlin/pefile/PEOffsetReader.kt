@@ -24,6 +24,23 @@ class PEOffsetReader(private val bytes: ByteArray) {
         return String(read(base, size)).trim { it <= ' ' } // remove null characters
     }
 
+    fun readString(base: Int): String {
+        return String(readWhile(base, { it.toUByte().toUInt() != 0x00u }))
+    }
+
+    private fun readWhile(base: Int, predicate: (Byte) -> Boolean): ByteArray {
+        val result = mutableListOf<Byte>()
+        for (i in base until bytes.size) {
+            if (predicate(bytes[i])) {
+                result.add(bytes[i])
+            } else {
+                break
+            }
+        }
+
+        return result.toByteArray()
+    }
+
     fun read(base: Int, size: Int): ByteArray {
         return bytes.copyOfRange(base, base + size)
     }

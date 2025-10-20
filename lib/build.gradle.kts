@@ -1,19 +1,19 @@
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "2.2.20"
 
     id("maven-publish")
     `java-library`
 }
 
 group = "de.scui"
-version = "1.3.0"
+version = "1.4.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("ch.qos.logback:logback-classic:1.4.9")
+    implementation("ch.qos.logback:logback-classic:1.5.19")
     testImplementation(kotlin("test"))
 }
 
@@ -23,7 +23,7 @@ tasks.test {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     withSourcesJar()
 }

@@ -187,11 +187,11 @@ class PEFile(val bytes: ByteArray) {
         return str == "MZ"
     }
 
-    private fun getSectionByVirtualAddress(address: Int): Section? {
+    fun getSectionByVirtualAddress(address: Int): Section? {
         return sections.find { address >= it.virtualBase && address <= it.virtualBase + it.virtualSize }
     }
 
-    private fun getSectionByRawAddress(address: Int): Section? {
+    fun getSectionByRawAddress(address: Int): Section? {
         return sections.find { address >= it.rawBase && address <= it.rawBase + it.rawSize }
     }
 

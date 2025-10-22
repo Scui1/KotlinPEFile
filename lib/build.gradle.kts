@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    api("io.github.icedland.iced:iced-x86:1.21.0")
     implementation("ch.qos.logback:logback-classic:1.5.19")
     testImplementation(kotlin("test"))
 }
